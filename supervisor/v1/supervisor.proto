@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package supervisor.v1;
+
+option go_package = "backend/gen/supervisor/v1;supervisorv1";
+
+import "types/v1/types.proto";
+
+message PingRequest {
+  string message = 1;
+}
+message PingResponse {
+  string message = 1;
+}
+
+message ServerStreamPingRequest {
+  string message = 1;
+}
+message ServerStreamPingResponse {
+  string message = 1;
+}
+
+message PingWithMessageRequest {
+  types.v1.Message message = 1;
+}
+message PingWithMessageResponse {
+  string message = 1;
+}
+
+
+service SupervisorService {
+  rpc Ping(PingRequest) returns (PingResponse) {};
+  rpc ServerStreamPing(ServerStreamPingRequest) returns (stream ServerStreamPingResponse) {};
+  rpc PingWithMessage(PingWithMessageRequest) returns (PingWithMessageResponse) {};
+}

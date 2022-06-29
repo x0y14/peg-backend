@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package types.v1;
+
+option go_package = "backend/gen/types/v1;typesv1";
+
+enum MessageContentType {
+  MESSAGE_CONTENT_TYPE_ILLEGAL_UNSPECIFIED = 0;
+  MESSAGE_CONTENT_TYPE_TEXT = 1;
+  MESSAGE_CONTENT_TYPE_IMAGE = 2;
+  MESSAGE_CONTENT_TYPE_VIDEO = 3;
+  MESSAGE_CONTENT_TYPE_GIF = 4;
+}
+message Message {
+  string id = 1;
+  string from = 2;
+  string to = 3;
+  MessageContentType content_type = 4;
+  string text = 5;
+  string metadata = 6;
+}
+
