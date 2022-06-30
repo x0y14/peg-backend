@@ -4,6 +4,24 @@ package types.v1;
 
 option go_package = "backend/gen/types/v1;typesv1";
 
+// === user service ===
+message Account {
+  string user_id = 1;
+  string email = 2;
+  string username = 3;
+}
+message Profile {
+  string user_id = 1;
+  string display_name = 2;
+  string icon_url = 3;
+  string metadata = 5;
+}
+message Settings {
+  bool allow_search = 1;
+}
+
+
+// === talk service ===
 enum MessageContentType {
   MESSAGE_CONTENT_TYPE_ILLEGAL_UNSPECIFIED = 0;
   MESSAGE_CONTENT_TYPE_TEXT = 1;
@@ -12,7 +30,7 @@ enum MessageContentType {
   MESSAGE_CONTENT_TYPE_GIF = 4;
 }
 message Message {
-  string id = 1;
+  string message_id = 1;
   string from = 2;
   string to = 3;
   MessageContentType content_type = 4;
@@ -20,3 +38,13 @@ message Message {
   string metadata = 6;
 }
 
+// === operation service ===
+enum OperationType {
+  OPERATION_TYPE_NOOP_UNSPECIFIED = 0;
+}
+message Operation {
+  int64 operation_id = 1;
+  OperationType type =2;
+  string source = 3;
+  repeated string destination = 4;
+}

@@ -28,7 +28,7 @@ const (
 // SupervisorServiceClient is a client for the supervisor.v1.SupervisorService service.
 type SupervisorServiceClient interface {
 	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
-	ServerStreamPing(context.Context, *connect_go.Request[v1.ServerStreamPingRequest]) (*connect_go.ServerStreamForClient[v1.ServerStreamPingResponse], error)
+	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
 // NewSupervisorServiceClient constructs a client for the supervisor.v1.SupervisorService service.
@@ -46,9 +46,9 @@ func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string
 			baseURL+"/supervisor.v1.SupervisorService/Ping",
 			opts...,
 		),
-		serverStreamPing: connect_go.NewClient[v1.ServerStreamPingRequest, v1.ServerStreamPingResponse](
+		recordOperation: connect_go.NewClient[v1.RecordOperationRequest, v1.RecordOperationResponse](
 			httpClient,
-			baseURL+"/supervisor.v1.SupervisorService/ServerStreamPing",
+			baseURL+"/supervisor.v1.SupervisorService/RecordOperation",
 			opts...,
 		),
 	}
@@ -56,8 +56,8 @@ func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string
 
 // supervisorServiceClient implements SupervisorServiceClient.
 type supervisorServiceClient struct {
-	ping             *connect_go.Client[v1.PingRequest, v1.PingResponse]
-	serverStreamPing *connect_go.Client[v1.ServerStreamPingRequest, v1.ServerStreamPingResponse]
+	ping            *connect_go.Client[v1.PingRequest, v1.PingResponse]
+	recordOperation *connect_go.Client[v1.RecordOperationRequest, v1.RecordOperationResponse]
 }
 
 // Ping calls supervisor.v1.SupervisorService.Ping.
@@ -65,15 +65,15 @@ func (c *supervisorServiceClient) Ping(ctx context.Context, req *connect_go.Requ
 	return c.ping.CallUnary(ctx, req)
 }
 
-// ServerStreamPing calls supervisor.v1.SupervisorService.ServerStreamPing.
-func (c *supervisorServiceClient) ServerStreamPing(ctx context.Context, req *connect_go.Request[v1.ServerStreamPingRequest]) (*connect_go.ServerStreamForClient[v1.ServerStreamPingResponse], error) {
-	return c.serverStreamPing.CallServerStream(ctx, req)
+// RecordOperation calls supervisor.v1.SupervisorService.RecordOperation.
+func (c *supervisorServiceClient) RecordOperation(ctx context.Context, req *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error) {
+	return c.recordOperation.CallUnary(ctx, req)
 }
 
 // SupervisorServiceHandler is an implementation of the supervisor.v1.SupervisorService service.
 type SupervisorServiceHandler interface {
 	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
-	ServerStreamPing(context.Context, *connect_go.Request[v1.ServerStreamPingRequest], *connect_go.ServerStream[v1.ServerStreamPingResponse]) error
+	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
 // NewSupervisorServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -88,9 +88,9 @@ func NewSupervisorServiceHandler(svc SupervisorServiceHandler, opts ...connect_g
 		svc.Ping,
 		opts...,
 	))
-	mux.Handle("/supervisor.v1.SupervisorService/ServerStreamPing", connect_go.NewServerStreamHandler(
-		"/supervisor.v1.SupervisorService/ServerStreamPing",
-		svc.ServerStreamPing,
+	mux.Handle("/supervisor.v1.SupervisorService/RecordOperation", connect_go.NewUnaryHandler(
+		"/supervisor.v1.SupervisorService/RecordOperation",
+		svc.RecordOperation,
 		opts...,
 	))
 	return "/supervisor.v1.SupervisorService/", mux
@@ -103,6 +103,6 @@ func (UnimplementedSupervisorServiceHandler) Ping(context.Context, *connect_go.R
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.Ping is not implemented"))
 }
 
-func (UnimplementedSupervisorServiceHandler) ServerStreamPing(context.Context, *connect_go.Request[v1.ServerStreamPingRequest], *connect_go.ServerStream[v1.ServerStreamPingResponse]) error {
-	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.ServerStreamPing is not implemented"))
+func (UnimplementedSupervisorServiceHandler) RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.RecordOperation is not implemented"))
 }
