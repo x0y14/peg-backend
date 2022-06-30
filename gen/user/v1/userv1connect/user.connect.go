@@ -29,7 +29,9 @@ const (
 type UserServiceClient interface {
 	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	GetAccount(context.Context, *connect_go.Request[v1.GetAccountRequest]) (*connect_go.Response[v1.GetAccountResponse], error)
+	UpdateAccount(context.Context, *connect_go.Request[v1.UpdateAccountRequest]) (*connect_go.Response[v1.UpdateAccountResponse], error)
 	GetProfile(context.Context, *connect_go.Request[v1.GetProfileRequest]) (*connect_go.Response[v1.GetProfileResponse], error)
+	UpdateProfile(context.Context, *connect_go.Request[v1.UpdateProfileRequest]) (*connect_go.Response[v1.UpdateProfileResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the user.v1.UserService service. By default, it uses
@@ -52,9 +54,19 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 			baseURL+"/user.v1.UserService/GetAccount",
 			opts...,
 		),
+		updateAccount: connect_go.NewClient[v1.UpdateAccountRequest, v1.UpdateAccountResponse](
+			httpClient,
+			baseURL+"/user.v1.UserService/UpdateAccount",
+			opts...,
+		),
 		getProfile: connect_go.NewClient[v1.GetProfileRequest, v1.GetProfileResponse](
 			httpClient,
 			baseURL+"/user.v1.UserService/GetProfile",
+			opts...,
+		),
+		updateProfile: connect_go.NewClient[v1.UpdateProfileRequest, v1.UpdateProfileResponse](
+			httpClient,
+			baseURL+"/user.v1.UserService/UpdateProfile",
 			opts...,
 		),
 	}
@@ -62,9 +74,11 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	ping       *connect_go.Client[v1.PingRequest, v1.PingResponse]
-	getAccount *connect_go.Client[v1.GetAccountRequest, v1.GetAccountResponse]
-	getProfile *connect_go.Client[v1.GetProfileRequest, v1.GetProfileResponse]
+	ping          *connect_go.Client[v1.PingRequest, v1.PingResponse]
+	getAccount    *connect_go.Client[v1.GetAccountRequest, v1.GetAccountResponse]
+	updateAccount *connect_go.Client[v1.UpdateAccountRequest, v1.UpdateAccountResponse]
+	getProfile    *connect_go.Client[v1.GetProfileRequest, v1.GetProfileResponse]
+	updateProfile *connect_go.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
 }
 
 // Ping calls user.v1.UserService.Ping.
@@ -77,16 +91,28 @@ func (c *userServiceClient) GetAccount(ctx context.Context, req *connect_go.Requ
 	return c.getAccount.CallUnary(ctx, req)
 }
 
+// UpdateAccount calls user.v1.UserService.UpdateAccount.
+func (c *userServiceClient) UpdateAccount(ctx context.Context, req *connect_go.Request[v1.UpdateAccountRequest]) (*connect_go.Response[v1.UpdateAccountResponse], error) {
+	return c.updateAccount.CallUnary(ctx, req)
+}
+
 // GetProfile calls user.v1.UserService.GetProfile.
 func (c *userServiceClient) GetProfile(ctx context.Context, req *connect_go.Request[v1.GetProfileRequest]) (*connect_go.Response[v1.GetProfileResponse], error) {
 	return c.getProfile.CallUnary(ctx, req)
+}
+
+// UpdateProfile calls user.v1.UserService.UpdateProfile.
+func (c *userServiceClient) UpdateProfile(ctx context.Context, req *connect_go.Request[v1.UpdateProfileRequest]) (*connect_go.Response[v1.UpdateProfileResponse], error) {
+	return c.updateProfile.CallUnary(ctx, req)
 }
 
 // UserServiceHandler is an implementation of the user.v1.UserService service.
 type UserServiceHandler interface {
 	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	GetAccount(context.Context, *connect_go.Request[v1.GetAccountRequest]) (*connect_go.Response[v1.GetAccountResponse], error)
+	UpdateAccount(context.Context, *connect_go.Request[v1.UpdateAccountRequest]) (*connect_go.Response[v1.UpdateAccountResponse], error)
 	GetProfile(context.Context, *connect_go.Request[v1.GetProfileRequest]) (*connect_go.Response[v1.GetProfileResponse], error)
+	UpdateProfile(context.Context, *connect_go.Request[v1.UpdateProfileRequest]) (*connect_go.Response[v1.UpdateProfileResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -106,9 +132,19 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOpt
 		svc.GetAccount,
 		opts...,
 	))
+	mux.Handle("/user.v1.UserService/UpdateAccount", connect_go.NewUnaryHandler(
+		"/user.v1.UserService/UpdateAccount",
+		svc.UpdateAccount,
+		opts...,
+	))
 	mux.Handle("/user.v1.UserService/GetProfile", connect_go.NewUnaryHandler(
 		"/user.v1.UserService/GetProfile",
 		svc.GetProfile,
+		opts...,
+	))
+	mux.Handle("/user.v1.UserService/UpdateProfile", connect_go.NewUnaryHandler(
+		"/user.v1.UserService/UpdateProfile",
+		svc.UpdateProfile,
 		opts...,
 	))
 	return "/user.v1.UserService/", mux
@@ -125,6 +161,14 @@ func (UnimplementedUserServiceHandler) GetAccount(context.Context, *connect_go.R
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.GetAccount is not implemented"))
 }
 
+func (UnimplementedUserServiceHandler) UpdateAccount(context.Context, *connect_go.Request[v1.UpdateAccountRequest]) (*connect_go.Response[v1.UpdateAccountResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.UpdateAccount is not implemented"))
+}
+
 func (UnimplementedUserServiceHandler) GetProfile(context.Context, *connect_go.Request[v1.GetProfileRequest]) (*connect_go.Response[v1.GetProfileResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.GetProfile is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) UpdateProfile(context.Context, *connect_go.Request[v1.UpdateProfileRequest]) (*connect_go.Response[v1.UpdateProfileResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.UpdateProfile is not implemented"))
 }

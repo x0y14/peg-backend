@@ -4,16 +4,18 @@ package types.v1;
 
 option go_package = "backend/gen/types/v1;typesv1";
 
+
 // === user service ===
 message Account {
   string user_id = 1;
   string email = 2;
-  string username = 3;
+  string user_name = 3;
 }
 message Profile {
   string user_id = 1;
   string display_name = 2;
-  string icon_url = 3;
+  string icon_path = 3;
+  string status_message = 4;
   string metadata = 5;
 }
 message Settings {
@@ -37,6 +39,7 @@ message Message {
   string text = 5;
   string metadata = 6;
 }
+
 
 // === operation service ===
 enum OperationType {
