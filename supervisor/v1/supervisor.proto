@@ -13,6 +13,8 @@ message PingResponse {
   string text = 1;
 }
 
+// todo : create account, profile
+
 message RecordOperationRequest {
   types.v1.Operation operation = 1;
 }
