@@ -27,7 +27,6 @@ const (
 
 // OperationServiceClient is a client for the operation.v1.OperationService service.
 type OperationServiceClient interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	FetchOperations(context.Context, *connect_go.Request[v1.FetchOperationsRequest]) (*connect_go.ServerStreamForClient[v1.FetchOperationsResponse], error)
 }
 
@@ -41,11 +40,6 @@ type OperationServiceClient interface {
 func NewOperationServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) OperationServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &operationServiceClient{
-		ping: connect_go.NewClient[v1.PingRequest, v1.PingResponse](
-			httpClient,
-			baseURL+"/operation.v1.OperationService/Ping",
-			opts...,
-		),
 		fetchOperations: connect_go.NewClient[v1.FetchOperationsRequest, v1.FetchOperationsResponse](
 			httpClient,
 			baseURL+"/operation.v1.OperationService/FetchOperations",
@@ -56,13 +50,7 @@ func NewOperationServiceClient(httpClient connect_go.HTTPClient, baseURL string,
 
 // operationServiceClient implements OperationServiceClient.
 type operationServiceClient struct {
-	ping            *connect_go.Client[v1.PingRequest, v1.PingResponse]
 	fetchOperations *connect_go.Client[v1.FetchOperationsRequest, v1.FetchOperationsResponse]
-}
-
-// Ping calls operation.v1.OperationService.Ping.
-func (c *operationServiceClient) Ping(ctx context.Context, req *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return c.ping.CallUnary(ctx, req)
 }
 
 // FetchOperations calls operation.v1.OperationService.FetchOperations.
@@ -72,7 +60,6 @@ func (c *operationServiceClient) FetchOperations(ctx context.Context, req *conne
 
 // OperationServiceHandler is an implementation of the operation.v1.OperationService service.
 type OperationServiceHandler interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	FetchOperations(context.Context, *connect_go.Request[v1.FetchOperationsRequest], *connect_go.ServerStream[v1.FetchOperationsResponse]) error
 }
 
@@ -83,11 +70,6 @@ type OperationServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewOperationServiceHandler(svc OperationServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/operation.v1.OperationService/Ping", connect_go.NewUnaryHandler(
-		"/operation.v1.OperationService/Ping",
-		svc.Ping,
-		opts...,
-	))
 	mux.Handle("/operation.v1.OperationService/FetchOperations", connect_go.NewServerStreamHandler(
 		"/operation.v1.OperationService/FetchOperations",
 		svc.FetchOperations,
@@ -98,10 +80,6 @@ func NewOperationServiceHandler(svc OperationServiceHandler, opts ...connect_go.
 
 // UnimplementedOperationServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedOperationServiceHandler struct{}
-
-func (UnimplementedOperationServiceHandler) Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("operation.v1.OperationService.Ping is not implemented"))
-}
 
 func (UnimplementedOperationServiceHandler) FetchOperations(context.Context, *connect_go.Request[v1.FetchOperationsRequest], *connect_go.ServerStream[v1.FetchOperationsResponse]) error {
 	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("operation.v1.OperationService.FetchOperations is not implemented"))

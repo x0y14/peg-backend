@@ -6,13 +6,6 @@ option go_package = "backend/gen/supervisor/v1;supervisorv1";
 
 import "types/v1/types.proto";
 
-message PingRequest {
-  string text = 1;
-}
-message PingResponse {
-  string text = 1;
-}
-
 // todo : create account, profile
 
 message RecordOperationRequest {
@@ -21,7 +14,5 @@ message RecordOperationRequest {
 message RecordOperationResponse {}
 
 service SupervisorService {
-  rpc Ping(PingRequest) returns (PingResponse) {};
-
   rpc RecordOperation(RecordOperationRequest) returns (RecordOperationResponse) {};
 }

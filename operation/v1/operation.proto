@@ -6,13 +6,6 @@ option go_package = "backend/gen/operation/v1;operationv1";
 
 import "types/v1/types.proto";
 
-message PingRequest {
-  string text = 1;
-}
-message PingResponse {
-  string text = 1;
-}
-
 message FetchOperationsRequest {
   int64 onset_operation_id = 1;
 }
@@ -22,7 +15,5 @@ message FetchOperationsResponse {
 }
 
 service OperationService {
-  rpc Ping(PingRequest) returns (PingResponse) {};
-
   rpc FetchOperations(FetchOperationsRequest) returns (stream FetchOperationsResponse) {};
 }

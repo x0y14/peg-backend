@@ -6,13 +6,6 @@ option go_package = "backend/gen/user/v1;userv1";
 
 import "types/v1/types.proto";
 
-message PingRequest {
-  string text = 1;
-}
-message PingResponse {
-  string text = 1;
-}
-
 message GetAccountRequest {};
 message GetAccountResponse {
   types.v1.Account account = 1;
@@ -43,8 +36,6 @@ message UpdateProfileResponse {
 }
 
 service UserService {
-  rpc Ping(PingRequest) returns (PingResponse) {};
-
   rpc GetAccount(GetAccountRequest) returns (GetAccountResponse) {};
   rpc UpdateAccount(UpdateAccountRequest) returns (UpdateAccountResponse) {};
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {};

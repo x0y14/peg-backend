@@ -27,7 +27,6 @@ const (
 
 // SupervisorServiceClient is a client for the supervisor.v1.SupervisorService service.
 type SupervisorServiceClient interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
@@ -41,11 +40,6 @@ type SupervisorServiceClient interface {
 func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) SupervisorServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &supervisorServiceClient{
-		ping: connect_go.NewClient[v1.PingRequest, v1.PingResponse](
-			httpClient,
-			baseURL+"/supervisor.v1.SupervisorService/Ping",
-			opts...,
-		),
 		recordOperation: connect_go.NewClient[v1.RecordOperationRequest, v1.RecordOperationResponse](
 			httpClient,
 			baseURL+"/supervisor.v1.SupervisorService/RecordOperation",
@@ -56,13 +50,7 @@ func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string
 
 // supervisorServiceClient implements SupervisorServiceClient.
 type supervisorServiceClient struct {
-	ping            *connect_go.Client[v1.PingRequest, v1.PingResponse]
 	recordOperation *connect_go.Client[v1.RecordOperationRequest, v1.RecordOperationResponse]
-}
-
-// Ping calls supervisor.v1.SupervisorService.Ping.
-func (c *supervisorServiceClient) Ping(ctx context.Context, req *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return c.ping.CallUnary(ctx, req)
 }
 
 // RecordOperation calls supervisor.v1.SupervisorService.RecordOperation.
@@ -72,7 +60,6 @@ func (c *supervisorServiceClient) RecordOperation(ctx context.Context, req *conn
 
 // SupervisorServiceHandler is an implementation of the supervisor.v1.SupervisorService service.
 type SupervisorServiceHandler interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
@@ -83,11 +70,6 @@ type SupervisorServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSupervisorServiceHandler(svc SupervisorServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/supervisor.v1.SupervisorService/Ping", connect_go.NewUnaryHandler(
-		"/supervisor.v1.SupervisorService/Ping",
-		svc.Ping,
-		opts...,
-	))
 	mux.Handle("/supervisor.v1.SupervisorService/RecordOperation", connect_go.NewUnaryHandler(
 		"/supervisor.v1.SupervisorService/RecordOperation",
 		svc.RecordOperation,
@@ -98,10 +80,6 @@ func NewSupervisorServiceHandler(svc SupervisorServiceHandler, opts ...connect_g
 
 // UnimplementedSupervisorServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSupervisorServiceHandler struct{}
-
-func (UnimplementedSupervisorServiceHandler) Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.Ping is not implemented"))
-}
 
 func (UnimplementedSupervisorServiceHandler) RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.RecordOperation is not implemented"))

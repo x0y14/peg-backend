@@ -21,100 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type PingRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
-}
-
-func (x *PingRequest) Reset() {
-	*x = PingRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_talk_v1_talk_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PingRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingRequest) ProtoMessage() {}
-
-func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_talk_v1_talk_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
-func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_talk_v1_talk_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *PingRequest) GetText() string {
-	if x != nil {
-		return x.Text
-	}
-	return ""
-}
-
-type PingResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Text string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
-}
-
-func (x *PingResponse) Reset() {
-	*x = PingResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_talk_v1_talk_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PingResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingResponse) ProtoMessage() {}
-
-func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_talk_v1_talk_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
-func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_talk_v1_talk_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *PingResponse) GetText() string {
-	if x != nil {
-		return x.Text
-	}
-	return ""
-}
-
 type SendMessageRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -126,7 +32,7 @@ type SendMessageRequest struct {
 func (x *SendMessageRequest) Reset() {
 	*x = SendMessageRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_talk_v1_talk_proto_msgTypes[2]
+		mi := &file_talk_v1_talk_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -139,7 +45,7 @@ func (x *SendMessageRequest) String() string {
 func (*SendMessageRequest) ProtoMessage() {}
 
 func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_talk_v1_talk_proto_msgTypes[2]
+	mi := &file_talk_v1_talk_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +58,7 @@ func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendMessageRequest) Descriptor() ([]byte, []int) {
-	return file_talk_v1_talk_proto_rawDescGZIP(), []int{2}
+	return file_talk_v1_talk_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SendMessageRequest) GetMessage() v1.MessageContentType {
@@ -171,7 +77,7 @@ type SendMessageResponse struct {
 func (x *SendMessageResponse) Reset() {
 	*x = SendMessageResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_talk_v1_talk_proto_msgTypes[3]
+		mi := &file_talk_v1_talk_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -184,7 +90,7 @@ func (x *SendMessageResponse) String() string {
 func (*SendMessageResponse) ProtoMessage() {}
 
 func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_talk_v1_talk_proto_msgTypes[3]
+	mi := &file_talk_v1_talk_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -197,7 +103,7 @@ func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageResponse.ProtoReflect.Descriptor instead.
 func (*SendMessageResponse) Descriptor() ([]byte, []int) {
-	return file_talk_v1_talk_proto_rawDescGZIP(), []int{3}
+	return file_talk_v1_talk_proto_rawDescGZIP(), []int{1}
 }
 
 var File_talk_v1_talk_proto protoreflect.FileDescriptor
@@ -206,24 +112,16 @@ var file_talk_v1_talk_proto_rawDesc = []byte{
 	0x0a, 0x12, 0x74, 0x61, 0x6c, 0x6b, 0x2f, 0x76, 0x31, 0x2f, 0x74, 0x61, 0x6c, 0x6b, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x07, 0x74, 0x61, 0x6c, 0x6b, 0x2e, 0x76, 0x31, 0x1a, 0x14, 0x74,
 	0x79, 0x70, 0x65, 0x73, 0x2f, 0x76, 0x31, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x22, 0x21, 0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22, 0x22, 0x0a, 0x0c, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x65, 0x78, 0x74, 0x22, 0x4c, 0x0a, 0x12, 0x53, 0x65,
-	0x6e, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x12, 0x36, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0e, 0x32, 0x1c, 0x2e, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x52,
-	0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x15, 0x0a, 0x13, 0x53, 0x65, 0x6e, 0x64,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32,
-	0x44, 0x0a, 0x0b, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x35,
-	0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67, 0x12, 0x14, 0x2e, 0x74, 0x61, 0x6c, 0x6b, 0x2e, 0x76, 0x31,
-	0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e, 0x74,
-	0x61, 0x6c, 0x6b, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x1c, 0x5a, 0x1a, 0x62, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64,
-	0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x74, 0x61, 0x6c, 0x6b, 0x2f, 0x76, 0x31, 0x3b, 0x74, 0x61, 0x6c,
-	0x6b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x74, 0x6f, 0x22, 0x4c, 0x0a, 0x12, 0x53, 0x65, 0x6e, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x36, 0x0a, 0x07, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c, 0x2e, 0x74, 0x79, 0x70,
+	0x65, 0x73, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x43, 0x6f, 0x6e,
+	0x74, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x22, 0x15, 0x0a, 0x13, 0x53, 0x65, 0x6e, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x0d, 0x0a, 0x0b, 0x54, 0x61, 0x6c, 0x6b,
+	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x42, 0x1c, 0x5a, 0x1a, 0x62, 0x61, 0x63, 0x6b, 0x65,
+	0x6e, 0x64, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x74, 0x61, 0x6c, 0x6b, 0x2f, 0x76, 0x31, 0x3b, 0x74,
+	0x61, 0x6c, 0x6b, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -238,20 +136,16 @@ func file_talk_v1_talk_proto_rawDescGZIP() []byte {
 	return file_talk_v1_talk_proto_rawDescData
 }
 
-var file_talk_v1_talk_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_talk_v1_talk_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_talk_v1_talk_proto_goTypes = []interface{}{
-	(*PingRequest)(nil),         // 0: talk.v1.PingRequest
-	(*PingResponse)(nil),        // 1: talk.v1.PingResponse
-	(*SendMessageRequest)(nil),  // 2: talk.v1.SendMessageRequest
-	(*SendMessageResponse)(nil), // 3: talk.v1.SendMessageResponse
-	(v1.MessageContentType)(0),  // 4: types.v1.MessageContentType
+	(*SendMessageRequest)(nil),  // 0: talk.v1.SendMessageRequest
+	(*SendMessageResponse)(nil), // 1: talk.v1.SendMessageResponse
+	(v1.MessageContentType)(0),  // 2: types.v1.MessageContentType
 }
 var file_talk_v1_talk_proto_depIdxs = []int32{
-	4, // 0: talk.v1.SendMessageRequest.message:type_name -> types.v1.MessageContentType
-	0, // 1: talk.v1.TalkService.Ping:input_type -> talk.v1.PingRequest
-	1, // 2: talk.v1.TalkService.Ping:output_type -> talk.v1.PingResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	2, // 0: talk.v1.SendMessageRequest.message:type_name -> types.v1.MessageContentType
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -264,30 +158,6 @@ func file_talk_v1_talk_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_talk_v1_talk_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_talk_v1_talk_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_talk_v1_talk_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SendMessageRequest); i {
 			case 0:
 				return &v.state
@@ -299,7 +169,7 @@ func file_talk_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_talk_v1_talk_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_talk_v1_talk_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SendMessageResponse); i {
 			case 0:
 				return &v.state
@@ -318,7 +188,7 @@ func file_talk_v1_talk_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_talk_v1_talk_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

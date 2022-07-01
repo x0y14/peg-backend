@@ -6,18 +6,10 @@ option go_package = "backend/gen/talk/v1;talkv1";
 
 import "types/v1/types.proto";
 
-message PingRequest {
-  string text = 1;
-}
-message PingResponse {
-  string text = 1;
-}
-
 message SendMessageRequest {
   types.v1.MessageContentType message = 1;
 }
 message SendMessageResponse {}
 
 service TalkService {
-  rpc Ping(PingRequest) returns (PingResponse) {};
 }

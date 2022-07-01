@@ -126,9 +126,9 @@ type Account struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId   string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email    string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	UserName string `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	UserId   string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`       // varchar(30)
+	Email    string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`                       // varchar(320)
+	UserName string `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"` // varchar(20)
 }
 
 func (x *Account) Reset() {
@@ -189,11 +189,11 @@ type Profile struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	DisplayName   string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	IconPath      string `protobuf:"bytes,3,opt,name=icon_path,json=iconPath,proto3" json:"icon_path,omitempty"`
-	StatusMessage string `protobuf:"bytes,4,opt,name=status_message,json=statusMessage,proto3" json:"status_message,omitempty"`
-	Metadata      string `protobuf:"bytes,5,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	UserId        string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                      // varchar(30)
+	DisplayName   string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`       // varchar(30), 'unknown'
+	IconPath      string `protobuf:"bytes,3,opt,name=icon_path,json=iconPath,proto3" json:"icon_path,omitempty"`                // varchar(50), 'icon_01'
+	StatusMessage string `protobuf:"bytes,4,opt,name=status_message,json=statusMessage,proto3" json:"status_message,omitempty"` // varchar(50), ''
+	Metadata      string `protobuf:"bytes,5,opt,name=metadata,proto3" json:"metadata,omitempty"`                                // json, '{}'
 }
 
 func (x *Profile) Reset() {
@@ -268,7 +268,7 @@ type Settings struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AllowSearch bool `protobuf:"varint,1,opt,name=allow_search,json=allowSearch,proto3" json:"allow_search,omitempty"`
+	AllowSearch bool `protobuf:"varint,1,opt,name=allow_search,json=allowSearch,proto3" json:"allow_search,omitempty"` // json, '{}'
 }
 
 func (x *Settings) Reset() {
@@ -315,12 +315,12 @@ type Message struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	MessageId   string             `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	From        string             `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
-	To          string             `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`
-	ContentType MessageContentType `protobuf:"varint,4,opt,name=content_type,json=contentType,proto3,enum=types.v1.MessageContentType" json:"content_type,omitempty"`
-	Text        string             `protobuf:"bytes,5,opt,name=text,proto3" json:"text,omitempty"`
-	Metadata    string             `protobuf:"bytes,6,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	MessageId   string             `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`                                         // varchar(30)
+	From        string             `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`                                                                    // varchar(30)
+	To          string             `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`                                                                        // varchar(30)
+	ContentType MessageContentType `protobuf:"varint,4,opt,name=content_type,json=contentType,proto3,enum=types.v1.MessageContentType" json:"content_type,omitempty"` // int
+	Text        string             `protobuf:"bytes,5,opt,name=text,proto3" json:"text,omitempty"`                                                                    // text
+	Metadata    string             `protobuf:"bytes,6,opt,name=metadata,proto3" json:"metadata,omitempty"`                                                            // json, '{}'
 }
 
 func (x *Message) Reset() {
@@ -402,10 +402,10 @@ type Operation struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	OperationId int64         `protobuf:"varint,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
-	Type        OperationType `protobuf:"varint,2,opt,name=type,proto3,enum=types.v1.OperationType" json:"type,omitempty"`
-	Source      string        `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
-	Destination []string      `protobuf:"bytes,4,rep,name=destination,proto3" json:"destination,omitempty"`
+	OperationId int64         `protobuf:"varint,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"` // bigint
+	Type        OperationType `protobuf:"varint,2,opt,name=type,proto3,enum=types.v1.OperationType" json:"type,omitempty"`      // int
+	Source      string        `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`                               // varchar(30)
+	Destination []string      `protobuf:"bytes,4,rep,name=destination,proto3" json:"destination,omitempty"`                     // json(list),
 }
 
 func (x *Operation) Reset() {

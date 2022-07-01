@@ -5,9 +5,6 @@
 package talkv1connect
 
 import (
-	v1 "backend/gen/talk/v1"
-	context "context"
-	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
 	http "net/http"
 	strings "strings"
@@ -27,7 +24,6 @@ const (
 
 // TalkServiceClient is a client for the talk.v1.TalkService service.
 type TalkServiceClient interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 }
 
 // NewTalkServiceClient constructs a client for the talk.v1.TalkService service. By default, it uses
@@ -39,28 +35,15 @@ type TalkServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewTalkServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) TalkServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	return &talkServiceClient{
-		ping: connect_go.NewClient[v1.PingRequest, v1.PingResponse](
-			httpClient,
-			baseURL+"/talk.v1.TalkService/Ping",
-			opts...,
-		),
-	}
+	return &talkServiceClient{}
 }
 
 // talkServiceClient implements TalkServiceClient.
 type talkServiceClient struct {
-	ping *connect_go.Client[v1.PingRequest, v1.PingResponse]
-}
-
-// Ping calls talk.v1.TalkService.Ping.
-func (c *talkServiceClient) Ping(ctx context.Context, req *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return c.ping.CallUnary(ctx, req)
 }
 
 // TalkServiceHandler is an implementation of the talk.v1.TalkService service.
 type TalkServiceHandler interface {
-	Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error)
 }
 
 // NewTalkServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -70,17 +53,8 @@ type TalkServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewTalkServiceHandler(svc TalkServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/talk.v1.TalkService/Ping", connect_go.NewUnaryHandler(
-		"/talk.v1.TalkService/Ping",
-		svc.Ping,
-		opts...,
-	))
 	return "/talk.v1.TalkService/", mux
 }
 
 // UnimplementedTalkServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedTalkServiceHandler struct{}
-
-func (UnimplementedTalkServiceHandler) Ping(context.Context, *connect_go.Request[v1.PingRequest]) (*connect_go.Response[v1.PingResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("talk.v1.TalkService.Ping is not implemented"))
-}
