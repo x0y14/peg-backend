@@ -7,12 +7,12 @@ option go_package = "backend/gen/types/v1;typesv1";
 
 // === user service ===
 message Account {
-  string user_id = 1; // varchar(30)
+  string user_id = 1; // varchar(~128)
   string email = 2;   // varchar(320)
   string user_name = 3; // varchar(20)
 }
 message Profile {
-  string user_id = 1; // varchar(30)
+  string user_id = 1; // varchar(~128)
   string display_name = 2; // varchar(30), 'unknown'
   string icon_path = 3; // varchar(50), 'icon_01'
   string status_message = 4; // varchar(50), ''
@@ -32,9 +32,9 @@ enum MessageContentType {
   MESSAGE_CONTENT_TYPE_GIF = 4;
 }
 message Message {
-  string message_id = 1; // varchar(30)
-  string from = 2; // varchar(30)
-  string to = 3; // varchar(30)
+  string id = 1; // 23
+  string from = 2; // varchar(~128)
+  string to = 3; // varchar(260)
   MessageContentType content_type = 4; // int
   string text = 5; // text
   string metadata = 6; // json, '{}'
@@ -46,8 +46,8 @@ enum OperationType {
   OPERATION_TYPE_NOOP_UNSPECIFIED = 0;
 }
 message Operation {
-  int64 operation_id = 1; // bigint
+  int64 id = 1; // bigint
   OperationType type = 2; // int
-  string source = 3; // varchar(30)
-  repeated string destination = 4; // json(list),
+  string source = 3; // varchar(~128)
+  repeated string destination = 4; // [varchar(128), ...]
 }
