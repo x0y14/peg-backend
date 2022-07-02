@@ -34,16 +34,9 @@ type UserServer struct {
 	db   *sql.DB
 }
 
-func (s *UserServer) Ping(_ context.Context, req *connect.Request[userv1.PingRequest]) (*connect.Response[userv1.PingResponse], error) {
-	res := connect.NewResponse(&userv1.PingResponse{Text: fmt.Sprintf("re: %s", req.Msg.Text)})
-	// sample に　あったからつけてみてる。いる?
-	res.Header().Set(ServiceName, ServiceVersion)
-	return res, nil
-}
-
 func (s *UserServer) GetAccount(_ context.Context, req *connect.Request[userv1.GetAccountRequest]) (*connect.Response[userv1.GetAccountResponse], error) {
 	// 処理要求アカウントのUserIdを取得
-	requesterUserId := req.Header().Get("X-User-Id")
+	requesterUserId := req.Header().Get("X-Peg-UserId")
 
 	// DBからアカウント情報取り出し
 	account_, err := db.GetAccount(s.db, requesterUserId)
@@ -94,7 +87,7 @@ func (s *UserServer) GetProfile(_ context.Context, req *connect.Request[userv1.G
 }
 
 func (s *UserServer) UpdateProfile(_ context.Context, req *connect.Request[userv1.UpdateProfileRequest]) (*connect.Response[userv1.UpdateProfileResponse], error) {
-	requesterUserId := req.Header().Get("X-User-Id")
+	requesterUserId := req.Header().Get("X-Peg-UserId")
 
 	// optional, nili以外をアップデートします。
 	newProfile, err := db.UpdateProfile(s.db, requesterUserId, req.Msg)
