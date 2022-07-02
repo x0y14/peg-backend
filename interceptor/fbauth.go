@@ -30,10 +30,10 @@ func NewFirebaseAuthInterceptor(cl *auth.Client) connect.UnaryInterceptorFunc {
 			// 管理者チェック
 			if admin, ok := claims["admin"]; ok {
 				if admin.(bool) {
-					request.Header().Set("X-Peg-Admin", "yes")
+					request.Header().Set("X-Peg-Admin", "true")
 				}
 			} else {
-				request.Header().Set("X-Peg-Admin", "no")
+				request.Header().Set("X-Peg-Admin", "false")
 			}
 
 			// 本来の処理で使用するのでデータをくっつけてあげる。
