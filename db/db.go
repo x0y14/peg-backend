@@ -23,7 +23,38 @@ func GetUserName(db *sql.DB, userId string) (string, error) {
 	return userName, err
 }
 
+func CreateAccount(db *sql.DB, userId string, email string) (*typesv1.Account, error) {
+	prep, err := db.Prepare("INSERT INTO accounts (user_id, email) values (?, ?)")
+	if err != nil {
+		return nil, err
+	}
+	defer prep.Close()
+
+	_, err = prep.Exec(userId, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetAccount(db, userId)
+}
+
+func CreateProfile(db *sql.DB, userId string, displayName string, iconPath string) (*typesv1.Profile, error) {
+	prep, err := db.Prepare("INSERT INTO profiles (user_id, display_name, icon_path) values (?, ?, ?)")
+	if err != nil {
+		return nil, err
+	}
+	defer prep.Close()
+
+	_, err = prep.Exec(userId, displayName, iconPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetProfile(db, userId)
+}
+
 func GetAccount(db *sql.DB, userId string) (*typesv1.Account, error) {
+	// usernameは別のテーブルにあるので、結合を行ってます。
 	prep, err := db.Prepare("SELECT email, user_name from accounts left join user_names on accounts.user_id = user_names.user_id where accounts.user_id = ?")
 	if err != nil {
 		return nil, err
