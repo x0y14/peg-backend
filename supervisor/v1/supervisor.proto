@@ -8,11 +8,27 @@ import "types/v1/types.proto";
 
 // todo : create account, profile
 
+message CreateAccountRequest {
+  types.v1.Account account = 1;
+}
+message CreateAccountResponse {
+  types.v1.Account account = 1;
+}
+
+message CreateProfileRequest {
+  types.v1.Profile profile = 1;
+}
+message CreateProfileResponse {
+  types.v1.Profile profile = 1;
+}
+
 message RecordOperationRequest {
   types.v1.Operation operation = 1;
 }
 message RecordOperationResponse {}
 
 service SupervisorService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {};
+  rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse) {};
   rpc RecordOperation(RecordOperationRequest) returns (RecordOperationResponse) {};
 }

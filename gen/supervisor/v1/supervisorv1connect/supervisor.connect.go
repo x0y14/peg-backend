@@ -27,6 +27,8 @@ const (
 
 // SupervisorServiceClient is a client for the supervisor.v1.SupervisorService service.
 type SupervisorServiceClient interface {
+	CreateAccount(context.Context, *connect_go.Request[v1.CreateAccountRequest]) (*connect_go.Response[v1.CreateAccountResponse], error)
+	CreateProfile(context.Context, *connect_go.Request[v1.CreateProfileRequest]) (*connect_go.Response[v1.CreateProfileResponse], error)
 	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
@@ -40,6 +42,16 @@ type SupervisorServiceClient interface {
 func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) SupervisorServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &supervisorServiceClient{
+		createAccount: connect_go.NewClient[v1.CreateAccountRequest, v1.CreateAccountResponse](
+			httpClient,
+			baseURL+"/supervisor.v1.SupervisorService/CreateAccount",
+			opts...,
+		),
+		createProfile: connect_go.NewClient[v1.CreateProfileRequest, v1.CreateProfileResponse](
+			httpClient,
+			baseURL+"/supervisor.v1.SupervisorService/CreateProfile",
+			opts...,
+		),
 		recordOperation: connect_go.NewClient[v1.RecordOperationRequest, v1.RecordOperationResponse](
 			httpClient,
 			baseURL+"/supervisor.v1.SupervisorService/RecordOperation",
@@ -50,7 +62,19 @@ func NewSupervisorServiceClient(httpClient connect_go.HTTPClient, baseURL string
 
 // supervisorServiceClient implements SupervisorServiceClient.
 type supervisorServiceClient struct {
+	createAccount   *connect_go.Client[v1.CreateAccountRequest, v1.CreateAccountResponse]
+	createProfile   *connect_go.Client[v1.CreateProfileRequest, v1.CreateProfileResponse]
 	recordOperation *connect_go.Client[v1.RecordOperationRequest, v1.RecordOperationResponse]
+}
+
+// CreateAccount calls supervisor.v1.SupervisorService.CreateAccount.
+func (c *supervisorServiceClient) CreateAccount(ctx context.Context, req *connect_go.Request[v1.CreateAccountRequest]) (*connect_go.Response[v1.CreateAccountResponse], error) {
+	return c.createAccount.CallUnary(ctx, req)
+}
+
+// CreateProfile calls supervisor.v1.SupervisorService.CreateProfile.
+func (c *supervisorServiceClient) CreateProfile(ctx context.Context, req *connect_go.Request[v1.CreateProfileRequest]) (*connect_go.Response[v1.CreateProfileResponse], error) {
+	return c.createProfile.CallUnary(ctx, req)
 }
 
 // RecordOperation calls supervisor.v1.SupervisorService.RecordOperation.
@@ -60,6 +84,8 @@ func (c *supervisorServiceClient) RecordOperation(ctx context.Context, req *conn
 
 // SupervisorServiceHandler is an implementation of the supervisor.v1.SupervisorService service.
 type SupervisorServiceHandler interface {
+	CreateAccount(context.Context, *connect_go.Request[v1.CreateAccountRequest]) (*connect_go.Response[v1.CreateAccountResponse], error)
+	CreateProfile(context.Context, *connect_go.Request[v1.CreateProfileRequest]) (*connect_go.Response[v1.CreateProfileResponse], error)
 	RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error)
 }
 
@@ -70,6 +96,16 @@ type SupervisorServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSupervisorServiceHandler(svc SupervisorServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
+	mux.Handle("/supervisor.v1.SupervisorService/CreateAccount", connect_go.NewUnaryHandler(
+		"/supervisor.v1.SupervisorService/CreateAccount",
+		svc.CreateAccount,
+		opts...,
+	))
+	mux.Handle("/supervisor.v1.SupervisorService/CreateProfile", connect_go.NewUnaryHandler(
+		"/supervisor.v1.SupervisorService/CreateProfile",
+		svc.CreateProfile,
+		opts...,
+	))
 	mux.Handle("/supervisor.v1.SupervisorService/RecordOperation", connect_go.NewUnaryHandler(
 		"/supervisor.v1.SupervisorService/RecordOperation",
 		svc.RecordOperation,
@@ -80,6 +116,14 @@ func NewSupervisorServiceHandler(svc SupervisorServiceHandler, opts ...connect_g
 
 // UnimplementedSupervisorServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSupervisorServiceHandler struct{}
+
+func (UnimplementedSupervisorServiceHandler) CreateAccount(context.Context, *connect_go.Request[v1.CreateAccountRequest]) (*connect_go.Response[v1.CreateAccountResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.CreateAccount is not implemented"))
+}
+
+func (UnimplementedSupervisorServiceHandler) CreateProfile(context.Context, *connect_go.Request[v1.CreateProfileRequest]) (*connect_go.Response[v1.CreateProfileResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.CreateProfile is not implemented"))
+}
 
 func (UnimplementedSupervisorServiceHandler) RecordOperation(context.Context, *connect_go.Request[v1.RecordOperationRequest]) (*connect_go.Response[v1.RecordOperationResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("supervisor.v1.SupervisorService.RecordOperation is not implemented"))
