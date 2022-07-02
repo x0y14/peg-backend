@@ -25,8 +25,19 @@ func NewFirebaseAuthInterceptor(cl *auth.Client) connect.UnaryInterceptorFunc {
 				return nil, connect.NewError(connect.CodeUnauthenticated, err)
 			}
 
+			// カスタムクレーム検証
+			claims := token.Claims
+			// 管理者チェック
+			if admin, ok := claims["admin"]; ok {
+				if admin.(bool) {
+					request.Header().Set("X-Peg-Admin", "yes")
+				}
+			} else {
+				request.Header().Set("X-Peg-Admin", "no")
+			}
+
 			// 本来の処理で使用するのでデータをくっつけてあげる。
-			request.Header().Set("X-User-ID", token.UID)
+			request.Header().Set("X-Peg-UserId", token.UID)
 
 			// 本来の処理
 			res, err := next(ctx, request)
