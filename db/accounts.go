@@ -43,3 +43,11 @@ func GetAccount(db *sql.DB, userId string) (*typesv1.Account, error) {
 		UserName: userName,
 	}, err
 }
+
+func IsAccountExists(db *sql.DB, userId string) bool {
+	_, err := GetAccount(db, userId)
+	if err != nil {
+		return false
+	}
+	return true
+}
