@@ -6,8 +6,6 @@ option go_package = "backend/gen/supervisor/v1;supervisorv1";
 
 import "types/v1/types.proto";
 
-// todo : create account, profile
-
 message CreateAccountRequest {
   types.v1.Account account = 1;
 }
