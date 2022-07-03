@@ -11,6 +11,7 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"fmt"
+	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/bufbuild/connect-go"
 	"github.com/bwmarrin/snowflake"
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +21,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -29,9 +31,10 @@ const (
 )
 
 type SupervisorServer struct {
-	db   *sql.DB
-	auth *auth.Client
-	id   *snowflake.Node
+	db           *sql.DB
+	auth         *auth.Client
+	id           *snowflake.Node
+	pulsarClient *pulsar.Client
 }
 
 func (s *SupervisorServer) CreateAccount(_ context.Context,
@@ -115,9 +118,24 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 		if err != nil {
 			return nil, connect.NewError(connect.CodeUnknown, err)
 		}
-	}
 
-	// todo : destination宛にmqを通して通知
+		for _, dest := range op.Destination {
+			// pulsar
+			producer, err := (*s.pulsarClient).CreateProducer(pulsar.ProducerOptions{
+				Topic: dest,
+			})
+			if err != nil {
+				return nil, connect.NewError(connect.CodeUnknown, err)
+			}
+			_, err = producer.Send(context.Background(), &pulsar.ProducerMessage{
+				Payload: []byte(strconv.FormatInt(opId, 10)),
+			})
+			if err != nil {
+				return nil, connect.NewError(connect.CodeUnknown, err)
+			}
+			producer.Close()
+		}
+	}
 
 	res := connect.NewResponse(&supervisorv1.RecordOperationResponse{})
 
@@ -136,15 +154,17 @@ func main() {
 	}
 
 	// Firebase Authの初期化
-	client, err := app.Auth(context.Background())
+	authClient, err := app.Auth(context.Background())
 	if err != nil {
-		log.Fatalf("error getting Auth client: %v\n", err)
+		log.Fatalf("error getting Auth authClient: %v\n", err)
 	}
 
 	// database準備
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s",
-		"root",
-		os.Getenv("MARIADB_ROOT_PASSWORD"),
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("MARIADB_USER"),
+		os.Getenv("MARIADB_PASSWORD"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
 		os.Getenv("MARIADB_DATABASE")))
 	if err != nil {
 		log.Fatal(err)
@@ -160,25 +180,38 @@ func main() {
 		log.Fatal(err)
 	}
 
+	pl, err := pulsar.NewClient(pulsar.ClientOptions{
+		URL:               fmt.Sprintf("pulsar://%s:%s", os.Getenv("PULSAR_HOST"), os.Getenv("PULSAR_PORT")),
+		OperationTimeout:  30 * time.Second,
+		ConnectionTimeout: 30 * time.Second,
+	})
+	if err != nil {
+		log.Fatalf("Could not instantiate Pulsar authClient: %v", err)
+	}
+	defer pl.Close()
+
 	// 渡してあげる
 	supervisorServer := &SupervisorServer{
-		db:   database,
-		auth: client,
-		id:   node,
+		db:           database,
+		auth:         authClient,
+		id:           node,
+		pulsarClient: &pl,
 	}
 
 	// インターセプター埋め込んであげる
 	mux := http.NewServeMux()
 	interceptors := connect.WithInterceptors(
-		interceptor.NewFirebaseAuthInterceptor(client))
+		interceptor.NewFirebaseAuthInterceptor(authClient))
 	mux.Handle(supervisorv1connect.NewSupervisorServiceHandler(
 		supervisorServer,
 		interceptors,
 	))
 
+	addr := fmt.Sprintf("0.0.0.0:%s", os.Getenv("SUPERVISOR_SERVICE_PORT"))
+
 	// 起動
 	if err := http.ListenAndServe(
-		"localhost:8080",
+		addr,
 		h2c.NewHandler(mux, &http2.Server{}),
 	); err != nil {
 		log.Fatal(err)
