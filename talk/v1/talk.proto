@@ -7,9 +7,23 @@ option go_package = "backend/gen/talk/v1;talkv1";
 import "types/v1/types.proto";
 
 message SendMessageRequest {
-  types.v1.MessageContentType message = 1;
+  types.v1.Message message = 1;
 }
-message SendMessageResponse {}
+message SendMessageResponse {
+  types.v1.Message message = 1;
+}
+
+// like udp
+message SendReadReceiptRequest {
+  string message_id = 1;
+}
+message SendReadReceiptResponse {
+}
 
 service TalkService {
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {};
+  rpc SendReadReceipt(SendReadReceiptRequest) returns (SendReadReceiptResponse) {};
+  // CreateGroup
+  // InviteIntoGroup
+  // JoinGroupViaInvitation
 }

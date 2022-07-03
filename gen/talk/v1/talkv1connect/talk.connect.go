@@ -5,6 +5,9 @@
 package talkv1connect
 
 import (
+	v1 "backend/gen/talk/v1"
+	context "context"
+	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
 	http "net/http"
 	strings "strings"
@@ -24,6 +27,8 @@ const (
 
 // TalkServiceClient is a client for the talk.v1.TalkService service.
 type TalkServiceClient interface {
+	SendMessage(context.Context, *connect_go.Request[v1.SendMessageRequest]) (*connect_go.Response[v1.SendMessageResponse], error)
+	SendReadReceipt(context.Context, *connect_go.Request[v1.SendReadReceiptRequest]) (*connect_go.Response[v1.SendReadReceiptResponse], error)
 }
 
 // NewTalkServiceClient constructs a client for the talk.v1.TalkService service. By default, it uses
@@ -35,15 +40,40 @@ type TalkServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewTalkServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) TalkServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	return &talkServiceClient{}
+	return &talkServiceClient{
+		sendMessage: connect_go.NewClient[v1.SendMessageRequest, v1.SendMessageResponse](
+			httpClient,
+			baseURL+"/talk.v1.TalkService/SendMessage",
+			opts...,
+		),
+		sendReadReceipt: connect_go.NewClient[v1.SendReadReceiptRequest, v1.SendReadReceiptResponse](
+			httpClient,
+			baseURL+"/talk.v1.TalkService/SendReadReceipt",
+			opts...,
+		),
+	}
 }
 
 // talkServiceClient implements TalkServiceClient.
 type talkServiceClient struct {
+	sendMessage     *connect_go.Client[v1.SendMessageRequest, v1.SendMessageResponse]
+	sendReadReceipt *connect_go.Client[v1.SendReadReceiptRequest, v1.SendReadReceiptResponse]
+}
+
+// SendMessage calls talk.v1.TalkService.SendMessage.
+func (c *talkServiceClient) SendMessage(ctx context.Context, req *connect_go.Request[v1.SendMessageRequest]) (*connect_go.Response[v1.SendMessageResponse], error) {
+	return c.sendMessage.CallUnary(ctx, req)
+}
+
+// SendReadReceipt calls talk.v1.TalkService.SendReadReceipt.
+func (c *talkServiceClient) SendReadReceipt(ctx context.Context, req *connect_go.Request[v1.SendReadReceiptRequest]) (*connect_go.Response[v1.SendReadReceiptResponse], error) {
+	return c.sendReadReceipt.CallUnary(ctx, req)
 }
 
 // TalkServiceHandler is an implementation of the talk.v1.TalkService service.
 type TalkServiceHandler interface {
+	SendMessage(context.Context, *connect_go.Request[v1.SendMessageRequest]) (*connect_go.Response[v1.SendMessageResponse], error)
+	SendReadReceipt(context.Context, *connect_go.Request[v1.SendReadReceiptRequest]) (*connect_go.Response[v1.SendReadReceiptResponse], error)
 }
 
 // NewTalkServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -53,8 +83,26 @@ type TalkServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewTalkServiceHandler(svc TalkServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
+	mux.Handle("/talk.v1.TalkService/SendMessage", connect_go.NewUnaryHandler(
+		"/talk.v1.TalkService/SendMessage",
+		svc.SendMessage,
+		opts...,
+	))
+	mux.Handle("/talk.v1.TalkService/SendReadReceipt", connect_go.NewUnaryHandler(
+		"/talk.v1.TalkService/SendReadReceipt",
+		svc.SendReadReceipt,
+		opts...,
+	))
 	return "/talk.v1.TalkService/", mux
 }
 
 // UnimplementedTalkServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedTalkServiceHandler struct{}
+
+func (UnimplementedTalkServiceHandler) SendMessage(context.Context, *connect_go.Request[v1.SendMessageRequest]) (*connect_go.Response[v1.SendMessageResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("talk.v1.TalkService.SendMessage is not implemented"))
+}
+
+func (UnimplementedTalkServiceHandler) SendReadReceipt(context.Context, *connect_go.Request[v1.SendReadReceiptRequest]) (*connect_go.Response[v1.SendReadReceiptResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("talk.v1.TalkService.SendReadReceipt is not implemented"))
+}
