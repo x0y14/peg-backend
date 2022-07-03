@@ -95,7 +95,28 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("admin only"))
 	}
 
-	return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("sorry"))
+	// supervisorは、お願いされたものを記録するだけ。
+	for _, op := range req.Msg.Operations {
+		// op本体の記録
+		_, err := db.CreateOperation(s.db, op.Id, op.Type, op.Source)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeUnknown, err)
+		}
+
+		// destinationを記録する前にopを記録しているので、宛先が出鱈目でもopだけは保存されてしまう。
+		// destinationのop_idはfkなので、先に入れることはできない。
+		// 先にdestをチェックするか、、、
+
+		// 宛先の記録
+		err = db.CreateOperationDestination(s.db, op.Id, op.Destination)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeUnknown, err)
+		}
+	}
+
+	res := connect.NewResponse(&supervisorv1.RecordOperationResponse{})
+
+	return res, nil
 }
 
 func main() {
