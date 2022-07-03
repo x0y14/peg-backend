@@ -85,4 +85,7 @@ message Operation {
   OperationType type = 2; // int
   string source = 3; // varchar(~128)
   repeated string destination = 4; // [varchar(128), ...]
+  optional string param1 = 20;
+  optional string param2 = 21;
+  optional string param3 = 22;
 }

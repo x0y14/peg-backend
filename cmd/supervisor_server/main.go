@@ -104,7 +104,7 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 	for _, op := range req.Msg.Operations {
 		opId := s.id.Generate().Int64()
 		// op本体の記録
-		_, err := db.CreateOperation(s.db, opId, op.Type, op.Source)
+		_, err := db.CreateOperation(s.db, opId, op.Type, op.Source, *op.Param1, *op.Param2, *op.Param3)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeUnknown, err)
 		}

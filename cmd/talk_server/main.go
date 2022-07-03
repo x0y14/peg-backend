@@ -120,12 +120,18 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 			Type:        typesv1.OperationType_OPERATION_TYPE_SEND_MESSAGE,
 			Source:      msg.From,
 			Destination: sendOpDest,
+			Param1:      &msg.Id,
+			Param2:      &msg.From,
+			Param3:      &msg.To,
 		},
 		{
 			Id:          0,
 			Type:        typesv1.OperationType_OPERATION_TYPE_SEND_MESSAGE_RECV,
 			Source:      msg.From,
 			Destination: recvOpDest,
+			Param1:      &msg.Id,
+			Param2:      &msg.From,
+			Param3:      &msg.To,
 		},
 	}})
 	// トークンをくっつけてあげる
