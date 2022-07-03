@@ -21,7 +21,7 @@ message CreateProfileResponse {
 }
 
 message RecordOperationRequest {
-  types.v1.Operation operation = 1;
+  repeated types.v1.Operation operations = 1;
 }
 message RecordOperationResponse {}
 
