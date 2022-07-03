@@ -12,6 +12,7 @@ import (
 	"firebase.google.com/go/v4/auth"
 	"fmt"
 	"github.com/bufbuild/connect-go"
+	"github.com/bwmarrin/snowflake"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"golang.org/x/net/http2"
@@ -30,6 +31,7 @@ const (
 type SupervisorServer struct {
 	db   *sql.DB
 	auth *auth.Client
+	id   *snowflake.Node
 }
 
 func (s *SupervisorServer) CreateAccount(_ context.Context,
@@ -97,8 +99,9 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 
 	// supervisorは、お願いされたものを記録するだけ。
 	for _, op := range req.Msg.Operations {
+		opId := s.id.Generate().Int64()
 		// op本体の記録
-		_, err := db.CreateOperation(s.db, op.Id, op.Type, op.Source)
+		_, err := db.CreateOperation(s.db, opId, op.Type, op.Source)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeUnknown, err)
 		}
@@ -108,7 +111,7 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 		// 先にdestをチェックするか、、、
 
 		// 宛先の記録
-		err = db.CreateOperationDestination(s.db, op.Id, op.Destination)
+		err = db.CreateOperationDestination(s.db, opId, op.Destination)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeUnknown, err)
 		}
@@ -151,10 +154,17 @@ func main() {
 	database.SetMaxOpenConns(10)
 	database.SetMaxIdleConns(10)
 
+	// id generator
+	node, err := snowflake.NewNode(1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// 渡してあげる
 	supervisorServer := &SupervisorServer{
 		db:   database,
 		auth: client,
+		id:   node,
 	}
 
 	// インターセプター埋め込んであげる
