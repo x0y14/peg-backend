@@ -134,9 +134,11 @@ func main() {
 		log.Fatalf("error getting Auth client: %v\n", err)
 	}
 
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s",
-		"root",
-		os.Getenv("MARIADB_ROOT_PASSWORD"),
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("MARIADB_USER"),
+		os.Getenv("MARIADB_PASSWORD"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
 		os.Getenv("MARIADB_DATABASE")))
 	if err != nil {
 		log.Fatal(err)
@@ -158,8 +160,11 @@ func main() {
 		userServer,
 		interceptors,
 	))
+
+	addr := fmt.Sprintf("0.0.0.0:%s", os.Getenv("USER_SERVICE_PORT"))
+
 	if err = http.ListenAndServe(
-		"localhost:8080",
+		addr,
 		h2c.NewHandler(mux, &http2.Server{}),
 	); err != nil {
 		log.Fatal(err)
