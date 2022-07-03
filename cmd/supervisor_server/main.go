@@ -114,6 +114,8 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 		}
 	}
 
+	// todo : destination宛にmqを通して通知
+
 	res := connect.NewResponse(&supervisorv1.RecordOperationResponse{})
 
 	return res, nil
