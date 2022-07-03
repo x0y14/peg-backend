@@ -2,9 +2,13 @@ package main
 
 import (
 	"backend/db"
+	supervisorv1 "backend/gen/supervisor/v1"
+	"backend/gen/supervisor/v1/supervisorv1connect"
 	talkv1 "backend/gen/talk/v1"
 	"backend/gen/talk/v1/talkv1connect"
+	typesv1 "backend/gen/types/v1"
 	"backend/interceptor"
+	"backend/scripts"
 	"backend/util"
 	"context"
 	"database/sql"
@@ -30,9 +34,10 @@ const (
 )
 
 type TalkServer struct {
-	app  *firebase.App
-	auth *auth.Client
-	db   *sql.DB
+	app              *firebase.App
+	auth             *auth.Client
+	db               *sql.DB
+	supervisorClient *supervisorv1connect.SupervisorServiceClient
 }
 
 func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv1.SendMessageRequest]) (*connect.Response[talkv1.SendMessageResponse], error) {
@@ -43,16 +48,20 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 	msg.Id = msgId
 	msg.From = senderUserId // 強制付け替え
 
-	if !util.IsDbJSON(msg.Metadata) {
-
-	}
+	// opを受け取るユーザーの生のuser_idが入る
+	// 自分が送信したことは通知されるべき     複数端末ログインを実装してるから?
+	sendOpDest := []string{msg.From}
+	// 自分が送信したものを受信できるべき,,,? 参考にしたものはこれも自身で受け取ってる.
+	recvOpDest := []string{msg.From}
 
 	// 送信先のチェック
 	switch {
 	case strings.Contains(msg.To, "gr|"):
 		// groupか?
+		//opDestination
 		return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("group is not implemented"))
 	case strings.Contains(msg.To, "di|") && strings.Contains(msg.To, ".") && strings.Contains(msg.To, senderUserId):
+		// 余計な部分を一回排除
 		receiverUserId := strings.Replace(msg.To, "di|", "", 1)
 		receiverUserId = strings.Replace(receiverUserId, ".", "", 1)
 		receiverUserId = strings.Replace(receiverUserId, senderUserId, "", 1)
@@ -67,7 +76,10 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid receiver"))
 		}
 
-		// 必ずしも適正なidとは限らないので、再構築
+		// opを相手が受け取れるように
+		recvOpDest = append(recvOpDest, receiverUserId)
+
+		// direct-chat id再構築
 		msg.To = util.CreateDirectChatId(msg.From, receiverUserId)
 
 	default:
@@ -81,15 +93,54 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid receiver"))
 		}
 
+		// opを相手が受け取れるように
+		// msg.toはこの時点で相手のuser_idが入ってる
+		recvOpDest = append(recvOpDest, msg.To)
+
+		// direct-chat idに変更
 		msg.To = util.CreateDirectChatId(msg.From, msg.To)
 	}
 
+	// 実際にdbに挿入したものを返してあげる
 	resMsg, err := db.CreateMessage(s.db, msg)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
-	// メッセージの保存は完了.
 
+	// op配布
+	// 管理者トークン発行
+	adminToken, err := scripts.GenerateAdminToken()
+	if err != nil {
+		return nil, connect.NewError(connect.CodeUnknown, err)
+	}
+	// request作成
+	recordReq := connect.NewRequest(&supervisorv1.RecordOperationRequest{Operations: []*typesv1.Operation{
+		{
+			Id:          0,
+			Type:        typesv1.OperationType_OPERATION_TYPE_SEND_MESSAGE,
+			Source:      msg.From,
+			Destination: sendOpDest,
+		},
+		{
+			Id:          0,
+			Type:        typesv1.OperationType_OPERATION_TYPE_SEND_MESSAGE_RECV,
+			Source:      msg.From,
+			Destination: recvOpDest,
+		},
+	}})
+	// トークンをくっつけてあげる
+	recordReq.Header().Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+	// リクエスト送信
+	go func() {
+		_, err = (*s.supervisorClient).RecordOperation(
+			context.Background(),
+			recordReq,
+		)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	// レスポンス作成
 	res := connect.NewResponse(&talkv1.SendMessageResponse{Message: resMsg})
 
 	return res, nil
@@ -104,21 +155,23 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("error loading the .env file: %v", err)
 	}
+
 	// Firebase appの初期化
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
-
 	// Firebase Authの初期化
 	client, err := app.Auth(context.Background())
 	if err != nil {
 		log.Fatalf("error getting Auth client: %v\n", err)
 	}
 
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s",
-		"root",
-		os.Getenv("MARIADB_ROOT_PASSWORD"),
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("MARIADB_USER"),
+		os.Getenv("MARIADB_PASSWORD"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
 		os.Getenv("MARIADB_DATABASE")))
 	if err != nil {
 		log.Fatal(err)
@@ -128,10 +181,17 @@ func main() {
 	database.SetMaxOpenConns(10)
 	database.SetMaxIdleConns(10)
 
+	// supervisor client
+	supervisorClient := supervisorv1connect.NewSupervisorServiceClient(
+		http.DefaultClient,
+		fmt.Sprintf("http://%s:%s", os.Getenv("SUPERVISOR_SERVICE_HOST"), os.Getenv("SUPERVISOR_SERVICE_PORT")),
+	)
+
 	talkServer := &TalkServer{
-		app:  app,
-		auth: client,
-		db:   database,
+		app:              app,
+		auth:             client,
+		db:               database,
+		supervisorClient: &supervisorClient,
 	}
 
 	mux := http.NewServeMux()
@@ -141,8 +201,9 @@ func main() {
 		talkServer,
 		interceptors))
 
+	addr := fmt.Sprintf("0.0.0.0:%s", os.Getenv("TALK_SERVICE_PORT"))
 	if err = http.ListenAndServe(
-		"localhost:8080",
+		addr,
 		h2c.NewHandler(mux, &http2.Server{}),
 	); err != nil {
 		log.Fatal(err)
