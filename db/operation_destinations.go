@@ -35,7 +35,7 @@ func GetOperationDestinations(db *sql.DB, operationId int64) ([]string, error) {
 		return nil, err
 	}
 
-	rows, err := prep.Query()
+	rows, err := prep.Query(operationId)
 	if err != nil {
 		return nil, err
 	}
