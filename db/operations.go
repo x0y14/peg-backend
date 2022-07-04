@@ -3,22 +3,24 @@ package db
 import (
 	typesv1 "backend/gen/types/v1"
 	"database/sql"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
-func CreateOperation(db *sql.DB, operationId int64, operationType typesv1.OperationType, source string, p1 string, p2 string, p3 string) (*typesv1.Operation, error) {
-	prep, err := db.Prepare("insert into operations (id, type, source, param1, param2, param3) value (?, ?, ?, ?, ?, ?)")
+func CreateOperation(db *sql.DB, operationId int64, operationType typesv1.OperationType, source string, p1 string, p2 string, p3 string, createdAt time.Time) (*typesv1.Operation, error) {
+	prep, err := db.Prepare("insert into operations (id, type, source, param1, param2, param3, created_at) value (?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = prep.Exec(operationId, operationType.Number(), source, p1, p2, p3)
+	_, err = prep.Exec(operationId, operationType.Number(), source, p1, p2, p3, createdAt)
 
 	// operationを返すべきか否か。
 	return nil, err
 }
 
 func GetOperationWithOperationId(db *sql.DB, operationId int64) (*typesv1.Operation, error) {
-	prep, err := db.Prepare("select type, source, param1, param2, param3 from operations where id = ?")
+	prep, err := db.Prepare("select type, source, param1, param2, param3, created_at from operations where id = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +30,8 @@ func GetOperationWithOperationId(db *sql.DB, operationId int64) (*typesv1.Operat
 	var param1 sql.NullString
 	var param2 sql.NullString
 	var param3 sql.NullString
-	err = prep.QueryRow(operationId).Scan(&opType, &source, &param1, &param2, &param3)
+	var createdAt time.Time
+	err = prep.QueryRow(operationId).Scan(&opType, &source, &param1, &param2, &param3, &createdAt)
 	if err != nil {
 		return nil, err
 	}
@@ -59,5 +62,6 @@ func GetOperationWithOperationId(db *sql.DB, operationId int64) (*typesv1.Operat
 		Param1:      p1,
 		Param2:      p2,
 		Param3:      p3,
+		CratedAt:    timestamppb.New(createdAt),
 	}, nil
 }

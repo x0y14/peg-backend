@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"github.com/bufbuild/connect-go"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 	"github.com/rs/xid"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"net/http"
 	"os"
@@ -123,6 +123,7 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 			Param1:      &msg.Id,
 			Param2:      &msg.From,
 			Param3:      &msg.To,
+			CratedAt:    timestamppb.Now(),
 		},
 		{
 			Id:          0,
@@ -132,6 +133,7 @@ func (s *TalkServer) SendMessage(ctx context.Context, req *connect.Request[talkv
 			Param1:      &msg.Id,
 			Param2:      &msg.From,
 			Param3:      &msg.To,
+			CratedAt:    timestamppb.Now(),
 		},
 	}})
 	// トークンをくっつけてあげる
@@ -158,9 +160,9 @@ func (s *TalkServer) SendReadReceipt(ctx context.Context, req *connect.Request[t
 
 func main() {
 	// 環境変数読み込み
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error loading the .env file: %v", err)
-	}
+	//if err := godotenv.Load(); err != nil {
+	//	log.Fatalf("error loading the .env file: %v", err)
+	//}
 
 	// Firebase appの初期化
 	app, err := firebase.NewApp(context.Background(), nil)
@@ -173,7 +175,7 @@ func main() {
 		log.Fatalf("error getting Auth client: %v\n", err)
 	}
 
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("MARIADB_USER"),
 		os.Getenv("MARIADB_PASSWORD"),
 		os.Getenv("DATABASE_HOST"),

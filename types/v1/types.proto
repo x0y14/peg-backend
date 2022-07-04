@@ -4,6 +4,7 @@ package types.v1;
 
 option go_package = "backend/gen/types/v1;typesv1";
 
+import "google/protobuf/timestamp.proto";
 
 // === user service ===
 message Account {
@@ -88,4 +89,5 @@ message Operation {
   optional string param1 = 20;
   optional string param2 = 21;
   optional string param3 = 22;
+  google.protobuf.Timestamp crated_at = 40;
 }

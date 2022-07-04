@@ -15,7 +15,6 @@ import (
 	"github.com/bufbuild/connect-go"
 	"github.com/bwmarrin/snowflake"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"log"
@@ -104,7 +103,9 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 	for _, op := range req.Msg.Operations {
 		opId := s.id.Generate().Int64()
 		// op本体の記録
-		_, err := db.CreateOperation(s.db, opId, op.Type, op.Source, *op.Param1, *op.Param2, *op.Param3)
+
+		// 時間強制書き換え...?
+		_, err := db.CreateOperation(s.db, opId, op.Type, op.Source, *op.Param1, *op.Param2, *op.Param3, time.Now())
 		if err != nil {
 			return nil, connect.NewError(connect.CodeUnknown, err)
 		}
@@ -143,10 +144,10 @@ func (s *SupervisorServer) RecordOperation(_ context.Context,
 }
 
 func main() {
-	// 環境変数読み込み
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error loading the .env file: %v", err)
-	}
+	//// 環境変数読み込み
+	//if err := godotenv.Load(); err != nil {
+	//	log.Fatalf("error loading the .env file: %v", err)
+	//}
 	// Firebase appの初期化
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
@@ -160,7 +161,7 @@ func main() {
 	}
 
 	// database準備
-	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+	database, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("MARIADB_USER"),
 		os.Getenv("MARIADB_PASSWORD"),
 		os.Getenv("DATABASE_HOST"),
